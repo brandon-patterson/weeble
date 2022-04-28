@@ -14,10 +14,14 @@ class SequenceReplacementEdit(object):
         # align to codon begin
         while self._edit_begin % 3 != 0:
             self._edit_begin -= 1
-        self._edit_end = offset + len(override_sequence) - 1
+        self._edit_end = offset + len(override_sequence)
         # align to codon end
         while self._edit_end % 3 != 0:
             self._edit_end += 1
+
+    def __eq__(self, other):
+        return self._original_sequence == other._original_sequence \
+                and self._new_sequence == other._new_sequence
 
     def __str__(self):
         old = self._original_sequence.bases[self._edit_begin:self._edit_end]
@@ -26,7 +30,7 @@ class SequenceReplacementEdit(object):
         for i in range(len(old)):
             edit_str += new[i] if old[i] == new[i] else new[i].lower()
 
-        return 'index: {}\t{}'.format(self._edit_begin+1, edit_str)
+        return 'edit index: {}\t{}'.format(self._edit_begin+1, edit_str)
 
     def number_of_bases_modified(self):
         old = self._original_sequence.bases[self._edit_begin:self._edit_end]
