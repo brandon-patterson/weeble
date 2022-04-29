@@ -23,7 +23,8 @@ class TestWobbleCutDetector(unittest.TestCase):
         enzyme = RestrictionEnzyme('enzyme_x', 'CCC')
         actual_cuts = WobbleCutDetector().detect_cuts(aligned, enzyme)
         expected_cuts = [
-            SequenceReplacementEdit(aligned, enzyme.sequence.invert(), 3)]
+            SequenceReplacementEdit(
+                aligned, enzyme.sequence.reverse_complement(), 3)]
         self.assertEqual(actual_cuts, expected_cuts)
 
     def test_detect_cuts_two_matches(self):
