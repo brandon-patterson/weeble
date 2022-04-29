@@ -23,6 +23,9 @@ class TestSequence(unittest.TestCase):
         self.assertEqual(len(Sequence('ACT')), 3)
         self.assertEqual(len(Sequence('CATG')), 4)
 
+    def test_str(self):
+        self.assertEqual(str(Sequence('ACT')), 'ACT')
+
     def test_reverse_complement(self):
         self.assertEqual(Sequence('ACTG_').reverse_complement(),
                          Sequence('_CAGT'))
@@ -41,8 +44,20 @@ class TestAlignedSequence(unittest.TestCase):
         expected_codons = [Codon('ACT'), Codon('GGC')]
         self.assertEqual(seq.codons, expected_codons)
 
+    def test_str(self):
+        long_seq = AlignedSequence('A' * 99)
+        expected = \
+            '1\tAAA AAA AAA AAA AAA : AAA AAA AAA AAA AAA\n' \
+            + '31\tAAA AAA AAA AAA AAA : AAA AAA AAA AAA AAA\n' \
+            + '61\tAAA AAA AAA AAA AAA : AAA AAA AAA AAA AAA\n' \
+            + '91\tAAA AAA AAA'
+
+        self.assertEqual(str(long_seq), expected)
+
     def test_get_amino_string(self):
-        self.assertEqual(AlignedSequence('ACTGGCTT_').get_amino_string(), 'TG?')
+        self.assertEqual(
+            AlignedSequence('ACTGGC' * 6 + 'TT_').get_amino_string(),
+            'TGTGT : GTGTG : TG?')
 
     def test_encodes_same_aminos(self):
         seq = AlignedSequence('ACTGGCTT_')
