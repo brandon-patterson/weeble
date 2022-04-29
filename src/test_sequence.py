@@ -3,6 +3,7 @@ from sequence import AlignedSequence
 from sequence import Sequence
 import unittest
 
+
 class TestSequence(unittest.TestCase):
     def test_init_validates_bases(self):
         self.assertRaises(AssertionError, lambda: Sequence('XYZ'))
@@ -22,8 +23,9 @@ class TestSequence(unittest.TestCase):
         self.assertEqual(len(Sequence('ACT')), 3)
         self.assertEqual(len(Sequence('CATG')), 4)
 
-    def test_invert(self):
-        self.assertEqual(Sequence('ACTG_').invert(), Sequence('_CAGT'))
+    def test_reverse_complement(self):
+        self.assertEqual(Sequence('ACTG_').reverse_complement(),
+                         Sequence('_CAGT'))
 
     def test_align_pads_missing_bases(self):
         self.assertEqual(Sequence('ACTA').align(), AlignedSequence('ACTA__'))

@@ -1,11 +1,15 @@
+"""
+A utility that searches for possible restriction enzyme cut-sites in a DNA
+sequence, allowing for base substitutions (provided that the resulting amino
+acid chain remains unaltered.
+"""
+
 from sequence import Sequence
 from wobble_cut_detector import WobbleCutDetector
 import restriction_enzymes as enzymes
 
-
-# Must be properly aligned. (Use leading underscores to align first codon.)
+# Must be properly left-aligned. (Use leading underscores to align first codon.)
 sequence_of_interest = 'AGTGGCTCCTAGAGGCTCGAATCAGCTATC'
-
 
 if __name__ == '__main__':
     aligned_seq = Sequence(sequence_of_interest).align()

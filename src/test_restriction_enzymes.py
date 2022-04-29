@@ -10,6 +10,9 @@ class TestRestrictionEnzyme(unittest.TestCase):
         self.assertEqual(enzyme.name, 'aName')
         self.assertEqual(enzyme.sequence, Sequence('CATG'))
 
+    def test_init_validates_bases(self):
+        self.assertRaises(AssertionError, lambda: RestrictionEnzyme('x', 'ABA'))
+
     def test_len(self):
         self.assertEqual(len(RestrictionEnzyme('x', 'CATG')), 4)
         self.assertEqual(len(RestrictionEnzyme('x', 'GCATGC')), 6)

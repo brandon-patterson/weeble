@@ -70,7 +70,18 @@ encodings = {
 
 
 class Codon(object):
+    """
+    A codon consists of three DNA bases, and may be associated with an amino
+    # acid. (All codons consisting exclusively of bases ACGT map to an amino or
+    stop.)
+    """
     def __init__(self, bases):
+        """
+        :param bases: Any length-three string of [ACGT_] (case-insensitive),
+            where ACGT are nucleic acids and _ represents a missing base (*not*
+            a wildcard; generally used to align the ends of a larger sequence
+            that doesn't end with a complete codon).
+        """
         assert len(bases) == 3, 'codons must have length 3!'
         bases = bases.upper()
         for base in bases:
@@ -78,15 +89,34 @@ class Codon(object):
         self.bases = bases
 
     def __eq__(self, other):
+        """Returns true if two codons have identical bases in the same order."""
         return self.bases == other.bases
 
     def get_amino(self):
+        """
+        Returns the string representation of an amino. Typically a
+        single-character, except for stop codons. Can return a placeholder for
+        an unknown amino in ambiguous cases. (See _UNKNOWN_AMINO)
+
+        :return: string representation of the encoded amino acid.
+        """
         if self.bases in encodings.keys():
             return encodings[self.bases]
         else:
             return _UNKNOWN_AMINO
 
     def encodes_same_amino(self, other):
+        """
+        Whether two codons encode for the same amino acid.
+
+        Note: '_' is *not* a wildcard. A codon containing this placeholder is
+        only considered to amino-match identical codons.
+        (e.g. __C encodes the 'same' amino as __C, but not __T, even though this
+        substitution would yield the same amino for any specific prefix.)
+
+        :param other: another codon
+        :return: boolean
+        """
         this_amino = self.get_amino()
         if this_amino == _UNKNOWN_AMINO:
             # unmapped codons must match exactly
