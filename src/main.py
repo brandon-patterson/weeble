@@ -13,8 +13,9 @@ sequence_of_interest = 'AGTGGCTCCTAGAGGCTCGAATCAGCTATC'
 
 if __name__ == '__main__':
     aligned_seq = Sequence(sequence_of_interest).align()
-    print('original sequence: {}'.format(aligned_seq.bases))
-    print('original amino chain: {}'.format(aligned_seq.get_amino_string()))
+    print('Original base sequence:\n{}'.format(aligned_seq))
+    print()
+    print('Original amino chain: \n\t{}'.format(aligned_seq.get_amino_string()))
     print()
     print('Checking sequence for potential cuts (leaving aminos unchanged)...')
     print()

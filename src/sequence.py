@@ -18,6 +18,10 @@ class Sequence(object):
 
         self.bases = base_sequence_str
 
+    def __str__(self):
+        """Returns the string-representation of the bases"""
+        return self.bases
+
     def __eq__(self, other):
         """Whether two Sequences are identical"""
         return self.bases == other.bases
@@ -73,11 +77,34 @@ class AlignedSequence(Sequence):
             codon = Codon(base_sequence[i:i + 3])
             self.codons.append(codon)
 
+    def __str__(self):
+        """Returns a human-readable representation of the base sequence"""
+        output = ''
+        base_count = 0
+        for codon in self.codons:
+            if base_count % 10 == 0:
+                if base_count > 0:
+                    output += '\n'
+                output += str(base_count + 1) + '\t'
+            elif base_count % 10 == 5:
+                output += ' : '
+            else:
+                output += ' '
+            output += codon.bases
+            base_count += 3
+        return output
+
     def get_amino_string(self):
         """
-        :return: string representation of the AlignedSequence's amino chain
+        :return: string representation of the AlignedSequence's amino chain,
+            with readability separators
         """
-        return ''.join(list(map(lambda c: c.get_amino(), self.codons)))
+        output = ''
+        for i in range(len(self.codons)):
+            if i % 5 == 0 and i > 0:
+                output += ' : '
+            output += self.codons[i].get_amino()
+        return output
 
     def encodes_same_aminos(self, other):
         """
