@@ -7,9 +7,9 @@ import unittest
 class TestSequence(unittest.TestCase):
     def test_init_validates_bases(self):
         self.assertRaises(AssertionError, lambda: Sequence('XYZ'))
-        self.assertRaises(AssertionError, lambda: Sequence('BBB'))
+        self.assertRaises(AssertionError, lambda: Sequence('WIFI'))
         # Valid
-        Sequence('_ACTG')
+        Sequence('_ACTUCGRYKMBVDHGSWN')
 
     def test_init_is_case_insensitive(self):
         self.assertEqual(Sequence('AGTC'), Sequence('agtc'))
@@ -18,6 +18,18 @@ class TestSequence(unittest.TestCase):
         self.assertEqual(Sequence('ACT'), Sequence('ACT'))
         self.assertNotEqual(Sequence('ACT'), Sequence('CAT'))
         self.assertNotEqual(Sequence('AAA'), Sequence('AAAA'))
+
+    def test_hash(self):
+        self.assertEqual(hash(Sequence('ACT')), hash(Sequence('ACT')))
+        self.assertNotEqual(hash(Sequence('ACT')), hash(Sequence('CAT')))
+        sequence_set = set()
+        sequence_set.add(Sequence('ACT'))
+        sequence_set.add(Sequence('CAT'))
+        sequence_set.add(Sequence('CAT'))
+        sequence_set.add(Sequence('CAN'))
+        self.assertEqual(len(sequence_set), 3)
+
+
 
     def test_len(self):
         self.assertEqual(len(Sequence('ACT')), 3)
@@ -29,9 +41,27 @@ class TestSequence(unittest.TestCase):
     def test_reverse_complement(self):
         self.assertEqual(Sequence('ACTG_').reverse_complement(),
                          Sequence('_CAGT'))
+        # Non-standard bases can also be inverted.
+        self.assertEqual(Sequence('BDHKMNRSVWY').reverse_complement(),
+                         Sequence('RWBSYNKMDHV'))
 
     def test_align_pads_missing_bases(self):
         self.assertEqual(Sequence('ACTA').align(), AlignedSequence('ACTA__'))
+
+    def test_is_degenerate(self):
+        self.assertFalse(Sequence('ACGTU_').is_degenerate())
+        for c in 'BDHKMNRSVWY':
+            self.assertTrue(Sequence(c).is_degenerate())
+
+    def test_get_primitive_sequences(self):
+        self.assertListEqual(Sequence('ACT').get_primitive_sequences(),
+                             [Sequence('ACT')])
+        self.assertListEqual(Sequence('ANT').get_primitive_sequences(),
+                             [Sequence('AAT'), Sequence('ACT'),
+                              Sequence('AGT'), Sequence('ATT')])
+        self.assertListEqual(Sequence('RAM').get_primitive_sequences(),
+                             [Sequence('AAA'), Sequence('AAC'),
+                              Sequence('GAA'), Sequence('GAC')])
 
 
 class TestAlignedSequence(unittest.TestCase):

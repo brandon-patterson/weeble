@@ -9,7 +9,8 @@ from wobble_cut_detector import WobbleCutDetector
 import restriction_enzymes as enzymes
 
 # Must be properly left-aligned. (Use leading underscores to align first codon.)
-sequence_of_interest = 'AGTGGCTCCTAGAGGCTCGAATCAGCTATC'
+sequence_of_interest = \
+    'AGTGGCTCCTAGAGGCTCGAATCAGCTATCAGCCGTACGGCATCATCAAACTTCTGGGGCTGC'
 
 if __name__ == '__main__':
     aligned_seq = Sequence(sequence_of_interest).align()

@@ -2,6 +2,7 @@ from sequence import AlignedSequence
 from sequence_edit import SequenceReplacementEdit
 from restriction_enzymes import RestrictionEnzyme
 from wobble_cut_detector import WobbleCutDetector
+import codons
 import unittest
 
 
@@ -43,6 +44,15 @@ class TestWobbleCutDetector(unittest.TestCase):
         actual_cuts = WobbleCutDetector().detect_cuts(aligned, enzyme)
         expected_cuts = [SequenceReplacementEdit(aligned, enzyme.sequence, 2)]
         self.assertEqual(actual_cuts, expected_cuts)
+
+    def test_detect_cuts_handles_degenerate_bases(self):
+        aligned = AlignedSequence('AGT')
+        enzyme = RestrictionEnzyme('enzyme_x', 'NNN')
+        actual_cuts = WobbleCutDetector().detect_cuts(aligned, enzyme)
+        expected_cut_count = len([
+            v for v in codons.encodings.values() if v == codons.encodings['AGT']
+        ])
+        self.assertEqual(len(actual_cuts), expected_cut_count)
 
 
 if __name__ == '__main__':

@@ -1,3 +1,5 @@
+import base_utils
+import itertools
 
 _UNKNOWN_AMINO = '?'
 
@@ -75,17 +77,17 @@ class Codon(object):
     # acid. (All codons consisting exclusively of bases ACGT map to an amino or
     stop.)
     """
+
     def __init__(self, bases):
         """
-        :param bases: Any length-three string of [ACGT_] (case-insensitive),
-            where ACGT are nucleic acids and _ represents a missing base (*not*
-            a wildcard; generally used to align the ends of a larger sequence
-            that doesn't end with a complete codon).
+        :param bases: Any length-three string of IUPAC degenerate bases
+            (case-insensitive)
         """
         assert len(bases) == 3, 'codons must have length 3!'
         bases = bases.upper()
         for base in bases:
-            assert base in 'ACGT_', 'unrecognized base "{}"'.format(base)
+            assert base in base_utils.ALL_BASES, \
+                'unrecognized base "{}"'.format(base)
         self.bases = bases
 
     def __eq__(self, other):
@@ -100,10 +102,18 @@ class Codon(object):
 
         :return: string representation of the encoded amino acid.
         """
-        if self.bases in encodings.keys():
-            return encodings[self.bases]
-        else:
-            return _UNKNOWN_AMINO
+        options = [base_utils.get_primitives(b) for b in self.bases]
+        amino = None
+        for base_list in itertools.product(*options):
+            base_str = ''.join(base_list)
+            if base_str not in encodings.keys():
+                return _UNKNOWN_AMINO
+            elif amino and amino != encodings[base_str]:
+                # we've found a conflict
+                return _UNKNOWN_AMINO
+            else:
+                amino = encodings[base_str]
+        return amino
 
     def encodes_same_amino(self, other):
         """

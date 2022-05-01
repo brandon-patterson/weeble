@@ -16,20 +16,20 @@ class TestCodon(unittest.TestCase):
 
     def test_init_validates_bases(self):
         # These are all valid
-        Codon('AAA')
-        Codon('CCC')
-        Codon('GGG')
-        Codon('TTT')
-        Codon('___')  # unknown/placeholder
+        Codon('ACT')
+        Codon('GU_')
+        Codon('RYK')
+        Codon('MBV')
+        Codon('DHG')
+        Codon('SWN')
 
         # These are all invalid
-        self.assertRaises(AssertionError, lambda: Codon('UUU'))
-        self.assertRaises(AssertionError, lambda: Codon('BBB'))
+        self.assertRaises(AssertionError, lambda: Codon('EEE'))
         self.assertRaises(AssertionError, lambda: Codon('XXX'))
         self.assertRaises(AssertionError, lambda: Codon('***'))
+        self.assertRaises(AssertionError, lambda: Codon('.- '))
         self.assertRaises(AssertionError, lambda: Codon('5\'AAA'))
         self.assertRaises(AssertionError, lambda: Codon('3\'AAA'))
-        self.assertRaises(AssertionError, lambda: Codon('UUU'))
 
     def test_eq(self):
         self.assertEqual(Codon('AAA'), Codon('AAA'))
@@ -39,12 +39,23 @@ class TestCodon(unittest.TestCase):
         self.assertNotEqual(Codon('__T'), Codon('__C'))
 
     def test_get_amino(self):
+        # standard codons
         self.assertEqual(Codon('AAA').get_amino(), 'K')
         self.assertEqual(Codon('CAT').get_amino(), 'H')
         self.assertEqual(Codon('TAA').get_amino(), 'Ochre')
+
+        # some degenerate codons encode actual aminos
+        self.assertEqual(Codon('AAY').get_amino(), 'N')
+        self.assertEqual(Codon('ACN').get_amino(), 'T')
+        self.assertEqual(Codon('AGR').get_amino(), 'R')
+        self.assertEqual(Codon('MGR').get_amino(), 'R')
+
+        # some codons cannot be mapped with certainty
         self.assertEqual(Codon('___').get_amino(), codons._UNKNOWN_AMINO)
         self.assertEqual(Codon('_AA').get_amino(), codons._UNKNOWN_AMINO)
         self.assertEqual(Codon('AC_').get_amino(), codons._UNKNOWN_AMINO)
+        self.assertEqual(Codon('NNN').get_amino(), codons._UNKNOWN_AMINO)
+        self.assertEqual(Codon('YTS').get_amino(), codons._UNKNOWN_AMINO)
 
     def test_encodes_same_amino(self):
         self.assertTrue(Codon('AAA').encodes_same_amino(Codon('AAG')))

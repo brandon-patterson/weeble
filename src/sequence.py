@@ -1,4 +1,6 @@
 from codons import Codon
+import base_utils
+import itertools
 
 
 class Sequence(object):
@@ -6,7 +8,8 @@ class Sequence(object):
 
     def __init__(self, base_sequence_str):
         """
-        :param base_sequence_str: any case-insensitive string of ACGT_
+        :param base_sequence_str: any case-insensitive string of IUPAC bases.
+            (Accepts base patterns such as 'N' for 'any base'.)
         """
 
         # Convert to upper
@@ -14,7 +17,8 @@ class Sequence(object):
 
         # Check that bases are valid
         for base in base_sequence_str:
-            assert base in 'ACGT_', 'unrecognized base "{}"'.format(base)
+            assert base in base_utils.ALL_BASES, \
+                'unrecognized base "{}"'.format(base)
 
         self.bases = base_sequence_str
 
@@ -25,6 +29,9 @@ class Sequence(object):
     def __eq__(self, other):
         """Whether two Sequences are identical"""
         return self.bases == other.bases
+
+    def __hash__(self):
+        return hash(self.bases)
 
     def __len__(self):
         """The number of bases in the Sequence"""
@@ -49,10 +56,39 @@ class Sequence(object):
         return Sequence(self.bases
                         .replace('A', 't')
                         .replace('T', 'a')
+                        .replace('U', 'a')
                         .replace('C', 'g')
                         .replace('G', 'c')
+                        .replace('R', 'y')
+                        .replace('Y', 'r')
+                        .replace('K', 'm')
+                        .replace('M', 'k')
+                        .replace('B', 'v')
+                        .replace('V', 'B')
+                        .replace('D', 'h')
+                        .replace('H', 'd')
+                        .replace('G', 'c')
+                        # (SWN_ remain the same)
                         .upper()
                         [::-1])
+
+    def is_degenerate(self):
+        """Whether the Sequence contains any non-standard bases. (not ACGTU_)"""
+        return any(b for b in self.bases if b not in base_utils.PRIMITIVE_BASES)
+
+    def get_primitive_sequences(self):
+        """
+        Returns all possible primitive sequences that match the pattern.
+        Warning: can be slow for long sequences with many degenerate bases!
+
+        Examples:
+            Sequence('ACT') -> [Sequence('ACT')]
+            Sequence('ANT') -> [Sequence('AAT'), Sequence('ACT'),
+                                Sequence('AGT'), Sequence('ATT')]
+        :return: A list of primitive sequences
+        """
+        options = [base_utils.get_primitives(b) for b in self.bases]
+        return [Sequence(''.join(x)) for x in itertools.product(*options)]
 
 
 class AlignedSequence(Sequence):
