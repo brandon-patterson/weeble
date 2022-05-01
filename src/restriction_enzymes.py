@@ -1,4 +1,5 @@
 from sequence import Sequence
+import base_utils
 
 
 class RestrictionEnzyme(object):
@@ -9,13 +10,8 @@ class RestrictionEnzyme(object):
     def __init__(self, name, base_sequence):
         """
         :param name: the name of the enzyme
-        :param base_sequence: a string of bases ACGT (of any length)
+        :param base_sequence: a string of bases (of any length)
         """
-        # Check that bases are valid
-        for base in base_sequence:
-            assert base in 'ACGT', 'unsupported restriction enzyme base "{}"' \
-                .format(base)
-
         self.name = name
         self.sequence = Sequence(base_sequence)
 
@@ -41,12 +37,16 @@ _enzymes = [
     RestrictionEnzyme('AciI', 'CCGC'),
     RestrictionEnzyme('AluI', 'AGCT'),
     RestrictionEnzyme('BamHI', 'GGATCC'),
+    RestrictionEnzyme('BsiEI', 'CGRYCG'),
     RestrictionEnzyme('EcoRI', 'GAATTC'),
     RestrictionEnzyme('EcoRV', 'GATATC'),
+    RestrictionEnzyme('Fnu4HI', 'GCNGC'),
     RestrictionEnzyme('HaeIII', 'GGCC'),
     RestrictionEnzyme('HgaI', 'GACGC'),
     RestrictionEnzyme('HindIII', 'AAGCTT'),
+    RestrictionEnzyme('Hpy99I', 'CGWCG'),
     RestrictionEnzyme('KpnI', 'GGTACC'),
+    RestrictionEnzyme('MspA1I', 'CMGCKG'),
     RestrictionEnzyme('NotI', 'GCGGCCGC'),
     RestrictionEnzyme('PstI', 'CTGCAG'),
     RestrictionEnzyme('PvuII', 'CAGCTG'),
@@ -54,6 +54,7 @@ _enzymes = [
     RestrictionEnzyme('SalI', 'GTCGAC'),
     RestrictionEnzyme('Sau3AI', 'GATC'),
     RestrictionEnzyme('ScaI', 'AGTACT'),
+    RestrictionEnzyme('SgrAI', 'CRCCGGYG'),
     RestrictionEnzyme('SmaI', 'CCCGGG'),
     RestrictionEnzyme('SpeI', 'ACTAGT'),
     RestrictionEnzyme('SphI', 'GCATGC'),

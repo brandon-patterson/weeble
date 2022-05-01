@@ -17,12 +17,13 @@ class WobbleCutDetector(object):
         :param restriction_enzyme: RestrictionEnzyme
         :return: List of SequenceReplacementEdit enabling an enzyme cut
         """
-        edit_list = self._detect_cuts_one_way(
-            aligned_sequence, restriction_enzyme.sequence)
-        if not restriction_enzyme.is_symmetric():
-            edit_list += self._detect_cuts_one_way(
-                aligned_sequence,
-                restriction_enzyme.sequence.reverse_complement())
+        edit_list = []
+        primitive_cut_sequences = set()
+        for seq in restriction_enzyme.sequence.get_primitive_sequences():
+            primitive_cut_sequences.add(seq)
+            primitive_cut_sequences.add(seq.reverse_complement())
+        for cut_seq in primitive_cut_sequences:
+            edit_list += self._detect_cuts_one_way(aligned_sequence, cut_seq)
         return edit_list
 
     @staticmethod
