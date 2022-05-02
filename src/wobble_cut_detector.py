@@ -39,6 +39,6 @@ class WobbleCutDetector(object):
         edit_list = []
         for offset in range(len(aligned_sequence) - len(cut_seq) + 1):
             edit = SequenceReplacementEdit(aligned_sequence, cut_seq, offset)
-            if edit.number_of_aminos_modified() == 0:
+            if edit.get_number_of_aminos_modified() == 0:
                 edit_list.append(edit)
         return edit_list

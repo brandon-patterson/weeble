@@ -1,3 +1,4 @@
+from codons import Codon
 from sequence import AlignedSequence
 
 
@@ -46,9 +47,11 @@ class SequenceReplacementEdit(object):
         for i in range(len(old)):
             edit_str += new[i] if old[i] == new[i] else new[i].lower()
 
-        return 'edit index: {}\t{}'.format(self._edit_begin + 1, edit_str)
+        return 'edit index: {}\t{}\tbases changed: {}\tabs usage shift: {}'.format(
+            self._edit_begin + 1, edit_str, self.get_number_of_bases_modified(),
+            round(self.get_abs_usage_shift(), 2))
 
-    def number_of_bases_modified(self):
+    def get_number_of_bases_modified(self):
         """
         :return: The number of bases modified by the edit
         """
@@ -56,7 +59,7 @@ class SequenceReplacementEdit(object):
         new = self._new_sequence.bases[self._edit_begin:self._edit_end]
         return sum(old[i] != new[i] for i in range(len(old)))
 
-    def number_of_aminos_modified(self):
+    def get_number_of_aminos_modified(self):
         """
         :return: The number of amino acids modified by the edit
             (Not all base-edits produce amino changes)
@@ -67,3 +70,18 @@ class SequenceReplacementEdit(object):
         new = self._new_sequence.codons[begin:end]
         return sum(not old[i].encodes_same_amino(new[i])
                    for i in range(len(old)))
+
+    def get_abs_usage_shift(self):
+        """
+        The sum of absolute changes in codon usage in the edit.
+        (inf if aminos are not identical between before/after sequences)
+        :return: float
+        """
+        if self.get_number_of_aminos_modified() > 0:
+            return float('inf')
+        abs_shift = 0
+        for i in range(self._edit_begin, self._edit_end, 3):
+            abs_shift += abs(
+                Codon(self._original_sequence.bases[i:i + 3]).get_usage()
+                - Codon(self._new_sequence.bases[i:i + 3]).get_usage())
+        return abs_shift

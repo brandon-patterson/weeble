@@ -50,7 +50,7 @@ class TestWobbleCutDetector(unittest.TestCase):
         enzyme = RestrictionEnzyme('enzyme_x', 'NNN')
         actual_cuts = WobbleCutDetector().detect_cuts(aligned, enzyme)
         expected_cut_count = len([
-            v for v in codons.encodings.values() if v == codons.encodings['AGT']
+            v for v in codons._encodings.values() if v == codons._encodings['AGT']
         ])
         self.assertEqual(len(actual_cuts), expected_cut_count)
 
