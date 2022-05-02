@@ -3,7 +3,7 @@ import itertools
 
 _UNKNOWN_AMINO = '?'
 
-encodings = {
+_encodings = {
     'AAA': 'K',
     'AAC': 'N',
     'AAG': 'K',
@@ -70,6 +70,75 @@ encodings = {
     'TTT': 'F',
 }
 
+_usage_source = 'Human'
+
+_usage = {
+    'AAA': 3.35,
+    'AAC': 1.76,
+    'AAG': 3.74,
+    'AAT': 2.05,
+    'ACA': 1.64,
+    'ACC': 1.53,
+    'ACG': 0.47,
+    'ACT': 1.42,
+    'AGA': 1.46,
+    'AGC': 1.39,
+    'AGG': 1.04,
+    'AGT': 1.18,
+    'ATA': 0.92,
+    'ATC': 2.06,
+    'ATG': 2.22,
+    'ATT': 2.16,
+    'CAA': 1.30,
+    'CAC': 1.15,
+    'CAG': 3.03,
+    'CAT': 1.17,
+    'CCA': 1.63,
+    'CCC': 1.35,
+    'CCG': 0.47,
+    'CCT': 1.66,
+    'CGA': 0.75,
+    'CGC': 0.79,
+    'CGG': 0.99,
+    'CGT': 0.53,
+    'CTA': 0.83,
+    'CTC': 1.55,
+    'CTG': 3.32,
+    'CTT': 1.53,
+    'GAA': 3.77,
+    'GAC': 2.35,
+    'GAG': 3.51,
+    'GAT': 2.93,
+    'GCA': 1.89,
+    'GCC': 2.35,
+    'GCG': 0.63,
+    'GCT': 2.21,
+    'GGA': 2.05,
+    'GGC': 1.95,
+    'GGG': 1.28,
+    'GGT': 1.32,
+    'GTA': 0.99,
+    'GTC': 1.33,
+    'GTG': 2.66,
+    'GTT': 1.49,
+    'TAA': 0.00,
+    'TAC': 1.48,
+    'TAG': 0.00,
+    'TAT': 1.61,
+    'TCA': 1.12,
+    'TCC': 1.30,
+    'TCG': 0.33,
+    'TCT': 1.43,
+    'TGA': 0.00,
+    'TGC': 0.92,
+    'TGG': 1.24,
+    'TGT': 1.03,
+    'TTA': 0.98,
+    'TTC': 1.85,
+    'TTG': 1.50,
+    'TTT': 2.16,
+}
+
 
 class Codon(object):
     """
@@ -106,13 +175,13 @@ class Codon(object):
         amino = None
         for base_list in itertools.product(*options):
             base_str = ''.join(base_list)
-            if base_str not in encodings.keys():
+            if base_str not in _encodings.keys():
                 return _UNKNOWN_AMINO
-            elif amino and amino != encodings[base_str]:
+            elif amino and amino != _encodings[base_str]:
                 # we've found a conflict
                 return _UNKNOWN_AMINO
             else:
-                amino = encodings[base_str]
+                amino = _encodings[base_str]
         return amino
 
     def encodes_same_amino(self, other):
@@ -133,3 +202,9 @@ class Codon(object):
             return self.bases == other.bases
 
         return self.get_amino() == other.get_amino()
+
+    def get_usage(self):
+        """
+        :return: the usage rate of this codon (genome-dependent)
+        """
+        return _usage[self.bases] if self.bases in _usage.keys() else 0

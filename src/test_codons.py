@@ -3,6 +3,20 @@ import codons
 import unittest
 
 
+class TestConfigs(unittest.TestCase):
+    def test_encoding_keys(self):
+        self.assertEqual(len(codons._encodings), 64)
+
+    def test_usage_keys(self):
+        self.assertEqual(len(codons._usage), 64)
+
+    def test_usage_sum(self):
+        max_diff = .005 * 64
+        usage_sum = sum(codons._usage.values())
+        self.assertLess(usage_sum, 100 + max_diff)
+        self.assertGreater(usage_sum, 100 - max_diff)
+
+
 class TestCodon(unittest.TestCase):
     def test_init_enforces_length(self):
         self.assertRaises(AssertionError, lambda: Codon(''))
@@ -69,6 +83,10 @@ class TestCodon(unittest.TestCase):
         self.assertTrue(Codon('__A').encodes_same_amino(Codon('__A')))
         # Note that '_' is *not* a wildcard. (TCN all map to the same amino)
         self.assertFalse(Codon('TC_').encodes_same_amino(Codon('TCA')))
+
+    def test_get_usage(self):
+        self.assertEqual(Codon('ACT').get_usage(), 1.42)
+        self.assertEqual(Codon('NBH').get_usage(), 0)
 
 
 if __name__ == '__main__':
