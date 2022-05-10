@@ -47,9 +47,11 @@ class SequenceReplacementEdit(object):
         for i in range(len(old)):
             edit_str += new[i] if old[i] == new[i] else new[i].lower()
 
-        return 'edit index: {}\t{}\tbases changed: {}\tabs usage shift: {}'.format(
-            self._edit_begin + 1, edit_str, self.get_number_of_bases_modified(),
-            round(self.get_abs_usage_shift(), 2))
+        return 'edit index: {}\t{}\tbases changed: {}\tabs usage shift: {}' \
+            .format(
+                self._edit_begin + 1, edit_str,
+                self.get_number_of_bases_modified(),
+                round(self.get_abs_usage_shift(), 2))
 
     def get_number_of_bases_modified(self):
         """

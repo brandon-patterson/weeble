@@ -3,141 +3,37 @@ import itertools
 
 _UNKNOWN_AMINO = '?'
 
-_encodings = {
-    'AAA': 'K',
-    'AAC': 'N',
-    'AAG': 'K',
-    'AAT': 'N',
-    'ACA': 'T',
-    'ACC': 'T',
-    'ACG': 'T',
-    'ACT': 'T',
-    'AGA': 'R',
-    'AGC': 'S',
-    'AGG': 'R',
-    'AGT': 'S',
-    'ATA': 'I',
-    'ATC': 'I',
-    'ATG': 'M',
-    'ATT': 'I',
-    'CAA': 'Q',
-    'CAC': 'H',
-    'CAG': 'Q',
-    'CAT': 'H',
-    'CCA': 'P',
-    'CCC': 'P',
-    'CCG': 'P',
-    'CCT': 'P',
-    'CGA': 'R',
-    'CGC': 'R',
-    'CGG': 'R',
-    'CGT': 'R',
-    'CTA': 'L',
-    'CTC': 'L',
-    'CTG': 'L',
-    'CTT': 'L',
-    'GAA': 'E',
-    'GAC': 'D',
-    'GAG': 'E',
-    'GAT': 'D',
-    'GCA': 'A',
-    'GCC': 'A',
-    'GCG': 'A',
-    'GCT': 'A',
-    'GGA': 'G',
-    'GGC': 'G',
-    'GGG': 'G',
-    'GGT': 'G',
-    'GTA': 'V',
-    'GTC': 'V',
-    'GTG': 'V',
-    'GTT': 'V',
-    'TAA': 'Ochre',  # Use a matching symbol to make stops interchangeable
-    'TAC': 'Y',
-    'TAG': 'Amber',  # Use a matching symbol to make stops interchangeable
-    'TAT': 'Y',
-    'TCA': 'S',
-    'TCC': 'S',
-    'TCG': 'S',
-    'TCT': 'S',
-    'TGA': 'Opal',  # Use a matching symbol to make stops interchangeable
-    'TGC': 'C',
-    'TGG': 'W',
-    'TGT': 'C',
-    'TTA': 'L',
-    'TTC': 'F',
-    'TTG': 'L',
-    'TTT': 'F',
-}
+_encodings = None
+_usage_source = None
+_usage_table = None
 
-_usage_source = 'Human'
 
-_usage = {
-    'AAA': 3.35,
-    'AAC': 1.76,
-    'AAG': 3.74,
-    'AAT': 2.05,
-    'ACA': 1.64,
-    'ACC': 1.53,
-    'ACG': 0.47,
-    'ACT': 1.42,
-    'AGA': 1.46,
-    'AGC': 1.39,
-    'AGG': 1.04,
-    'AGT': 1.18,
-    'ATA': 0.92,
-    'ATC': 2.06,
-    'ATG': 2.22,
-    'ATT': 2.16,
-    'CAA': 1.30,
-    'CAC': 1.15,
-    'CAG': 3.03,
-    'CAT': 1.17,
-    'CCA': 1.63,
-    'CCC': 1.35,
-    'CCG': 0.47,
-    'CCT': 1.66,
-    'CGA': 0.75,
-    'CGC': 0.79,
-    'CGG': 0.99,
-    'CGT': 0.53,
-    'CTA': 0.83,
-    'CTC': 1.55,
-    'CTG': 3.32,
-    'CTT': 1.53,
-    'GAA': 3.77,
-    'GAC': 2.35,
-    'GAG': 3.51,
-    'GAT': 2.93,
-    'GCA': 1.89,
-    'GCC': 2.35,
-    'GCG': 0.63,
-    'GCT': 2.21,
-    'GGA': 2.05,
-    'GGC': 1.95,
-    'GGG': 1.28,
-    'GGT': 1.32,
-    'GTA': 0.99,
-    'GTC': 1.33,
-    'GTG': 2.66,
-    'GTT': 1.49,
-    'TAA': 0.00,
-    'TAC': 1.48,
-    'TAG': 0.00,
-    'TAT': 1.61,
-    'TCA': 1.12,
-    'TCC': 1.30,
-    'TCG': 0.33,
-    'TCT': 1.43,
-    'TGA': 0.00,
-    'TGC': 0.92,
-    'TGG': 1.24,
-    'TGT': 1.03,
-    'TTA': 0.98,
-    'TTC': 1.85,
-    'TTG': 1.50,
-    'TTT': 2.16,
-}
+def load_encodings(encoding_file='encodings'):
+    global _encodings
+    if _encodings:
+        return
+    _encodings = {}
+    path = '../configs/{}.txt'.format(encoding_file)
+    with open(path, 'r') as file:
+        for line in file:
+            k, v = line.split(': ')
+            _encodings[k] = v.strip()
+
+
+def load_usage(usage_file_name='human'):
+    global _usage_source
+    global _usage_table
+    if _usage_table:
+        # Don't allow the table to be altered post-load
+        raise RuntimeError('Already loaded usage table {}'
+                           .format(_usage_source))
+    _usage_source = usage_file_name
+    _usage_table = {}
+    path = '../configs/usage_tables/{}.txt'.format(usage_file_name)
+    with open(path, 'r') as file:
+        for line in file:
+            k, v = line.split(': ')
+            _usage_table[k] = float(v)
 
 
 class Codon(object):
@@ -171,6 +67,8 @@ class Codon(object):
 
         :return: string representation of the encoded amino acid.
         """
+        if not _encodings:
+            load_encodings()
         options = [base_utils.get_primitives(b) for b in self.bases]
         amino = None
         for base_list in itertools.product(*options):
@@ -207,4 +105,9 @@ class Codon(object):
         """
         :return: the usage rate of this codon (genome-dependent)
         """
-        return _usage[self.bases] if self.bases in _usage.keys() else 0
+        if not _usage_table:
+            load_usage()
+        if self.bases in _usage_table.keys():
+            return _usage_table[self.bases]
+        else:
+            return 0

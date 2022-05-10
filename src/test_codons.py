@@ -1,20 +1,44 @@
 from codons import Codon
 import codons
+import itertools
+import os
 import unittest
 
 
+def get_usage_options():
+    options = set()
+    for item in os.listdir('../configs/usage_tables'):
+        if item.endswith('.txt'):
+            options.add(item.split('.')[0])
+    return options
+
+
+def get_expected_keys():
+    b = ['A', 'C', 'G', 'T']
+    return set([''.join(p) for p in itertools.product(b, b, b)])
+
+
 class TestConfigs(unittest.TestCase):
+
     def test_encoding_keys(self):
-        self.assertEqual(len(codons._encodings), 64)
+        self.assertEqual(set(codons._encodings.keys()), get_expected_keys())
 
-    def test_usage_keys(self):
-        self.assertEqual(len(codons._usage), 64)
-
-    def test_usage_sum(self):
+    def test_usage(self):
         max_diff = .005 * 64
-        usage_sum = sum(codons._usage.values())
-        self.assertLess(usage_sum, 100 + max_diff)
-        self.assertGreater(usage_sum, 100 - max_diff)
+        for usage_option in get_usage_options():
+            codons._usage_table = None  # clear to avoid crashes
+            codons.load_usage(usage_option)
+
+            self.assertEqual(codons._usage_source, usage_option)
+            self.assertEqual(set(codons._usage_table.keys()),
+                             get_expected_keys())
+            usage_sum = sum(codons._usage_table.values())
+            self.assertLess(usage_sum, 100 + max_diff)
+            self.assertGreater(usage_sum, 100 - max_diff)
+
+        # restore defaults
+        codons._usage_table = None  # clear to avoid crashes
+        codons.load_usage()
 
 
 class TestCodon(unittest.TestCase):

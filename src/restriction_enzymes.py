@@ -1,5 +1,6 @@
 from sequence import Sequence
-import base_utils
+
+_enzymes = None
 
 
 class RestrictionEnzyme(object):
@@ -33,39 +34,22 @@ class RestrictionEnzyme(object):
         return self.sequence == self.sequence.reverse_complement()
 
 
-_enzymes = [
-    RestrictionEnzyme('AciI', 'CCGC'),
-    RestrictionEnzyme('AluI', 'AGCT'),
-    RestrictionEnzyme('BamHI', 'GGATCC'),
-    RestrictionEnzyme('BsiEI', 'CGRYCG'),
-    RestrictionEnzyme('EcoRI', 'GAATTC'),
-    RestrictionEnzyme('EcoRV', 'GATATC'),
-    RestrictionEnzyme('Fnu4HI', 'GCNGC'),
-    RestrictionEnzyme('HaeIII', 'GGCC'),
-    RestrictionEnzyme('HgaI', 'GACGC'),
-    RestrictionEnzyme('HindIII', 'AAGCTT'),
-    RestrictionEnzyme('Hpy99I', 'CGWCG'),
-    RestrictionEnzyme('KpnI', 'GGTACC'),
-    RestrictionEnzyme('MspA1I', 'CMGCKG'),
-    RestrictionEnzyme('NotI', 'GCGGCCGC'),
-    RestrictionEnzyme('PstI', 'CTGCAG'),
-    RestrictionEnzyme('PvuII', 'CAGCTG'),
-    RestrictionEnzyme('SacI', 'GAGCTC'),
-    RestrictionEnzyme('SalI', 'GTCGAC'),
-    RestrictionEnzyme('Sau3AI', 'GATC'),
-    RestrictionEnzyme('ScaI', 'AGTACT'),
-    RestrictionEnzyme('SgrAI', 'CRCCGGYG'),
-    RestrictionEnzyme('SmaI', 'CCCGGG'),
-    RestrictionEnzyme('SpeI', 'ACTAGT'),
-    RestrictionEnzyme('SphI', 'GCATGC'),
-    RestrictionEnzyme('StuI', 'AGGCCT'),
-    RestrictionEnzyme('TaqI', 'TCGA'),
-    RestrictionEnzyme('XbaI', 'TCTAGA'),
-]
+def load_enzymes(enzyme_file):
+    global _enzymes
+    if _enzymes:
+        # Prevent reloading of enzymes mid-run, which could cause errors.
+        raise RuntimeError('enzymes already loaded')
+    _enzymes = []
+    with open('../configs/{}.txt'.format(enzyme_file), 'r') as infile:
+        for line in infile:
+            name, pattern = line.split(': ')
+            _enzymes.append(RestrictionEnzyme(name, pattern.strip()))
 
 
 def get_all_enzymes():
     """
     :return: a list of 'default' configured restriction enzymes
     """
+    if not _enzymes:
+        load_enzymes('restriction_enzymes')
     return _enzymes.copy()
