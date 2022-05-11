@@ -21,7 +21,7 @@ _default_args = {
 
 def _set_pwd_to_main():
     """Sets pwd to this file's location to ensure relative config paths work."""
-    main_path = os.path.realpath(__file__)
+    main_path = os.path.realpath(sys.argv[0])
     os.chdir(os.path.dirname(main_path))
 
 
